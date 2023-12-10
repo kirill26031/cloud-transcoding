@@ -21,29 +21,7 @@ public class VideoController {
         this.videoService = videoService;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<VideoFileDto> uploadVideoFile(@RequestParam("file") MultipartFile file,
-                                                        @RequestHeader(value = "Authorization", required = true) String authorization) {
-        String filename = file.getOriginalFilename();
-        Long fileSize = file.getSize();
-        NewVideoFileDto videoFileDto = new NewVideoFileDto(null, filename, fileSize, null);
-        VideoFileModel videoFile =
-                videoService.createVideoFile(videoFileDto, VideoService.extractToken(authorization), file);
-
-        return ResponseEntity.ok(videoService.toDto(videoFile));
-    }
-
-    @GetMapping("/video-file/{id}")
-    public ResponseEntity<VideoFileDto> getVideoFile(@PathVariable("id") Long id,
-                                                     @RequestHeader(value = "Authorization", required = true) String authorization) {
-        VideoFileModel videoFile = videoService.getVideoFile(id, VideoService.extractToken(authorization));
-        if (videoFile == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(videoService.toDto(videoFile));
-    }
-
-    @GetMapping("/video/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<VideoDto> getVideo(@PathVariable("id") Long id,
                                              @RequestHeader(value = "Authorization", required = true) String authorization) {
         VideoModel video = videoService.getVideo(id, VideoService.extractToken(authorization));

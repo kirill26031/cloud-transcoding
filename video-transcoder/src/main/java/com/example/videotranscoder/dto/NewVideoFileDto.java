@@ -11,5 +11,5 @@ public class NewVideoFileDto {
     Long videoId;
     String filename;
     Long sizeInBytes;
-    String storageUrl;
+    String storageKey;
 }

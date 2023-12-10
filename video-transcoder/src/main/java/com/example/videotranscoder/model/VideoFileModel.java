@@ -22,5 +22,5 @@ public class VideoFileModel {
     @Column(name = "size_in_bytes", nullable = false)
     Long sizeInBytes;
     @Column(name = "storage_url", nullable = true)
-    String storageUrl;
+    String storageKey;
 }

@@ -46,7 +46,7 @@ public class VideoService {
         video = videoRepository.save(video);
         videoFileDto.setVideoId(video.getId());
         String s3Key = storageService.uploadFileToStorage(file);
-        videoFileDto.setStorageUrl(s3Key);
+        videoFileDto.setStorageKey(s3Key);
         VideoFileModel videoFile = videoFileRepository.save(convertToEntity(videoFileDto));
         return videoFile;
     }
@@ -72,8 +72,12 @@ public class VideoService {
         if (user == null) {
             return null;
         }
+        return findByIdAndUserId(id, user.getId());
+    }
+
+    private VideoFileModel findByIdAndUserId(Long id, Long userId) {
         VideoFileModel videoFile = videoFileRepository.findById(id).orElse(null);
-        if (videoFile == null || !videoFile.getVideo().getUser().getId().equals(user.getId())) {
+        if (videoFile == null || !videoFile.getVideo().getUser().getId().equals(userId)) {
             return null;
         }
         return videoFile;
@@ -84,10 +88,7 @@ public class VideoService {
         if (user == null) {
             return null;
         }
-        VideoModel video = videoRepository.findById(id).orElse(null);
-        if (video == null || !video.getUser().getId().equals(user.getId())) {
-            return null;
-        }
+        VideoModel video = videoRepository.findByIdAndUserId(id, user.getId()).orElse(null);
         return video;
     }
 
@@ -97,5 +98,17 @@ public class VideoService {
 
     public static String extractToken(String authorization) {
         return authorization.replace("Bearer ", "");
+    }
+
+    public byte[] downloadVideoFile(Long fileId, String token) {
+        UserModel user = userRepository.findByToken(token);
+        if (user == null) {
+            return null;
+        }
+        VideoFileModel videoFile = findByIdAndUserId(fileId, user.getId());
+        if (videoFile == null){
+            return null;
+        }
+        return storageService.downloadFile(videoFile.getStorageKey());
     }
 }
