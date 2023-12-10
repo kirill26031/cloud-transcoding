@@ -15,4 +15,18 @@ public class CliUtils {
             return null;
         }
     }
+
+    public static boolean executeVideoConversion(String command, String inputFile, String outputFile) {
+        command = command.replace("{input}", inputFile).replace("{output}", outputFile);
+        command = "ffmpeg " + command;
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec(command);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error on execution of " + command);
+            return false;
+        }
+    }
 }

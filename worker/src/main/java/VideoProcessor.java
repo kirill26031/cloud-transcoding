@@ -9,10 +9,16 @@ import java.io.File;
 public class VideoProcessor {
     public static final String REQUESTS_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-request";
     public static final String RESPONSES_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-results";
+    public static final String OUTPUT_FOLDER = "output/";
     public static void main(String[] args) {
         try {
             String thisExecutorId = CliUtils.getExecutorId();
             System.out.println("This executor id: " + thisExecutorId);
+
+            File outputFolder = new File(OUTPUT_FOLDER);
+            if (!outputFolder.exists()) {
+                outputFolder.mkdir();
+            }
 
             StorageService storageService = new StorageService();
 
@@ -38,11 +44,27 @@ public class VideoProcessor {
                     String options = messageParts[1];
                     String executorId = messageParts[2];
 
-                    System.out.println("Received task " + message);
-
                     if (executorId.equals(thisExecutorId)) {
+                        String responseMessage = "ERROR;";
+                        System.out.println("Received task " + message);
                         File downloadedVideo = storageService.downloadFile(storageKey);
                         System.out.println("Downloaded video to " + downloadedVideo.toPath());
+
+                        String newStorageKey = StorageService.generateRandomToken(128);
+                        File outputFile = new File(outputFolder.getAbsolutePath() + newStorageKey);
+                        boolean executionResult = CliUtils.executeVideoConversion(options,
+                                wrapInQuotes(downloadedVideo.getAbsolutePath()),
+                                wrapInQuotes(outputFolder.getAbsolutePath()));
+                        if (executionResult) {
+                            storageService.uploadFileToStorage(outputFile);
+                            outputFile.delete();
+                            responseMessage = "SUCCESS;" + newStorageKey;
+                        }
+
+                        sendResponse(sqsClient, responseMessage);
+
+                        // Delete processed message
+                        deleteProcessedMessage(sqsClient, message);
                     }
                 }
             }
@@ -50,5 +72,27 @@ public class VideoProcessor {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    private static void sendResponse(SqsClient sqsClient, String responseMessage) {
+        sqsClient.sendMessage(
+                SendMessageRequest.builder()
+                        .queueUrl(RESPONSES_QUEUE_URL)
+                        .messageBody(responseMessage)
+                        .build()
+        );
+    }
+
+    private static void deleteProcessedMessage(SqsClient sqsClient, Message message) {
+        sqsClient.deleteMessage(
+                DeleteMessageRequest.builder()
+                        .queueUrl(REQUESTS_QUEUE_URL)
+                        .receiptHandle(message.receiptHandle())
+                        .build()
+        );
+    }
+
+    private static String wrapInQuotes(String text) {
+        return "\"" + text + "\"";
     }
 }
