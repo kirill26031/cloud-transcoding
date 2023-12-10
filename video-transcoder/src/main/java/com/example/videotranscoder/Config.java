@@ -3,6 +3,9 @@ package com.example.videotranscoder;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.auth.credentials.*;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
@@ -23,6 +26,15 @@ public class Config {
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.example.videotranscoder.controller"))
                 .paths(PathSelectors.any())
+                .build();
+    }
+
+    @Bean
+    public S3Client s3Client() {
+
+        return S3Client.builder()
+                .region(Region.EU_CENTRAL_1)
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
                 .build();
     }
 }

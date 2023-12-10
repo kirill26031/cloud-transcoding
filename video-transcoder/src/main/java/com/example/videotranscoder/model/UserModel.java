@@ -10,8 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "transcoder_user")
-@Getter
-@Setter
+@Data
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +19,6 @@ public class UserModel {
     String emailAddress;
     @Column(name = "token", nullable = true)
     String token;
-    @OneToMany(targetEntity = VideoModel.class, mappedBy = "userId", fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = VideoModel.class, mappedBy = "user", fetch = FetchType.LAZY)
     List<VideoModel> videos;
 }
