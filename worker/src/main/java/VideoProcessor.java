@@ -26,7 +26,7 @@ public class VideoProcessor {
                 ReceiveMessageRequest.builder()
                         .queueUrl(REQUESTS_QUEUE_URL)
                         .maxNumberOfMessages(1)
-                        .waitTimeSeconds(180)
+                        .waitTimeSeconds(20)
                         .build()
         );
 
