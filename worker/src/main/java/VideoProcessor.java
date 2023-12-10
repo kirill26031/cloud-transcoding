@@ -45,7 +45,7 @@ public class VideoProcessor {
                     String executorId = messageParts[2];
 
                     if (executorId.equals(thisExecutorId)) {
-                        String responseMessage = "ERROR;";
+                        String responseMessage = message.messageId();
                         System.out.println("Received task " + message);
                         File downloadedVideo = storageService.downloadFile(storageKey);
                         System.out.println("Downloaded video to " + downloadedVideo.toPath());
@@ -57,8 +57,12 @@ public class VideoProcessor {
                                 wrapInQuotes(outputFolder.getAbsolutePath()));
                         if (executionResult) {
                             storageService.uploadFileToStorage(outputFile);
+
+                            responseMessage = responseMessage +
+                                    ";SUCCESS;" + newStorageKey + ";" + outputFile.length();
                             outputFile.delete();
-                            responseMessage = "SUCCESS;" + newStorageKey;
+                        } else {
+                            responseMessage = responseMessage + ";ERROR";
                         }
 
                         sendResponse(sqsClient, responseMessage);
