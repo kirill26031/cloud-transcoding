@@ -23,4 +23,6 @@ public class VideoFileModel {
     Long sizeInBytes;
     @Column(name = "storage_url", nullable = true)
     String storageKey;
+    @Column(name = "is_original", nullable = false)
+    Boolean isOriginal;
 }

@@ -43,7 +43,7 @@ public class VideoFileController {
                                                         @RequestHeader(value = "Authorization", required = true) String authorization) {
         String filename = file.getOriginalFilename();
         Long fileSize = file.getSize();
-        NewVideoFileDto videoFileDto = new NewVideoFileDto(null, filename, fileSize, null);
+        NewVideoFileDto videoFileDto = new NewVideoFileDto(null, filename, fileSize, null, true);
         VideoFileModel videoFile =
                 videoService.createVideoFile(videoFileDto, VideoService.extractToken(authorization), file);
 

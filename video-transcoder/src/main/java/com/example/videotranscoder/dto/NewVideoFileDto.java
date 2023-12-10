@@ -12,4 +12,5 @@ public class NewVideoFileDto {
     String filename;
     Long sizeInBytes;
     String storageKey;
+    Boolean isOriginal;
 }

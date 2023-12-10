@@ -92,6 +92,11 @@ public class VideoService {
         return video;
     }
 
+    public VideoModel getVideo(Long id) {
+        VideoModel video = videoRepository.findById(id).orElse(null);
+        return video;
+    }
+
     public VideoDto toDto(VideoModel video) {
         return modelMapper.map(video, VideoDto.class);
     }
@@ -110,5 +115,13 @@ public class VideoService {
             return null;
         }
         return storageService.downloadFile(videoFile.getStorageKey());
+    }
+
+    public boolean ownsVideo(String token, Long videoId) {
+        UserModel user = userRepository.findByToken(token);
+        if (user == null) {
+            return false;
+        }
+        return videoRepository.findByIdAndUserId(videoId, user.getId()).isPresent();
     }
 }
