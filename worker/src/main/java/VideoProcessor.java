@@ -5,6 +5,8 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VideoProcessor {
     public static final String REQUESTS_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-request";
@@ -45,7 +47,7 @@ public class VideoProcessor {
                     String executorId = messageParts[2];
 
                     if (executorId.equals(thisExecutorId)) {
-                        String responseMessage = message.messageId();
+                        String responseMessage = "";
                         System.out.println("Received task " + message);
                         File downloadedVideo = storageService.downloadFile(storageKey);
                         System.out.println("Downloaded video to " + downloadedVideo.toPath());
@@ -65,7 +67,9 @@ public class VideoProcessor {
                             responseMessage = responseMessage + ";ERROR";
                         }
 
-                        sendResponse(sqsClient, responseMessage);
+                        Map<String, MessageAttributeValue> attributes = new HashMap<>();
+                        attributes.put("request_message_id", MessageAttributeValue.builder().stringValue(message.messageId()).build());
+                        sendResponse(sqsClient, responseMessage, attributes);
 
                         // Delete processed message
                         deleteProcessedMessage(sqsClient, message);
@@ -78,11 +82,12 @@ public class VideoProcessor {
         }
     }
 
-    private static void sendResponse(SqsClient sqsClient, String responseMessage) {
+    private static void sendResponse(SqsClient sqsClient, String responseMessage, Map<String, MessageAttributeValue> attributes) {
         sqsClient.sendMessage(
                 SendMessageRequest.builder()
                         .queueUrl(RESPONSES_QUEUE_URL)
                         .messageBody(responseMessage)
+                        .messageAttributes(attributes)
                         .build()
         );
     }
