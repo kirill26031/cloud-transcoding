@@ -68,7 +68,11 @@ public class VideoProcessor {
                         }
 
                         Map<String, MessageAttributeValue> attributes = new HashMap<>();
-                        attributes.put("request_message_id", MessageAttributeValue.builder().stringValue(message.messageId()).build());
+                        attributes.put("request_message_id",
+                                MessageAttributeValue.builder()
+                                        .dataType("String")
+                                        .stringValue(message.messageId())
+                                        .build());
                         sendResponse(sqsClient, responseMessage, attributes);
 
                         // Delete processed message
