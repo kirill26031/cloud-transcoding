@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -21,9 +18,26 @@ public class CliUtils {
         command = "ffmpeg " + command;
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec(command);
+            Process process = rt.exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            // Read the output of the command
+            String line;
+            StringBuilder output = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+            System.out.println(output);
+
+            // Wait for the process to complete
+            int exitCode = process.waitFor();
+
+            if (exitCode != 0) {
+                System.err.println("Error on execution of " + command);
+                return false;
+            }
             return true;
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             System.err.println("Error on execution of " + command);
             return false;
