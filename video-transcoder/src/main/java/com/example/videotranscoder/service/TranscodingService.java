@@ -6,6 +6,7 @@ import com.example.videotranscoder.model.VideoModel;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -30,13 +31,15 @@ public class TranscodingService {
             return null;
         }
         String processedTranscodingOptions = processOptions(transcodingOptions, originalVideoFile.getFilename());
+        String executor = executorsService.getAvailableExecutor();
         String messageId = messageQueueService.sendTranscodingRequest(new TranscodingRequestDto(
                 originalVideoFile.getStorageKey(),
                 processedTranscodingOptions,
-                executorsService.getAvailableExecutor(),
+                executor,
                 getFileExtension(originalVideoFile.getFilename())
         ));
         String result = messageQueueService.receiveResults(messageId);
+        executorsService.decrementTaskAmountForExecutor(executor);
         if (result.startsWith("SUCCESS")) {
             String[] parts = result.replace("SUCCESS;", "").split(";");
             VideoFileModel videoFile = videoService.createTranscodedFile(parts[0], originalVideoFile.getVideo(),
@@ -45,6 +48,29 @@ public class TranscodingService {
         }
         else {
             return null;
+        }
+    }
+
+    public void receiveHangingTranscodingRequests() {
+        Collection<String> transcodingResults = messageQueueService.receiveHangingTranscodingResults();
+        for (String result : transcodingResults) {
+            if (result.startsWith("SUCCESS")) {
+                String[] parts = result.replace("SUCCESS;", "").split(";");
+                Long sizeInBytes = Long.parseLong(parts[1]);
+                String newStorageKey = parts[0];
+                String originalStorageKey = parts[2];
+                String executorId = parts[3];
+                this.executorsService.decrementTaskAmountForExecutor(executorId);
+                VideoFileModel originalVideoFile = this.videoService.getVideoFileByStorageKey(originalStorageKey);
+                if (originalVideoFile != null) {
+                    videoService.createTranscodedFile(newStorageKey, originalVideoFile.getVideo(),
+                            "unknown", getFileExtension(originalVideoFile.getFilename()), sizeInBytes);
+                }
+            } else {
+                String[] parts = result.replace("ERROR;", "").split(";");
+                String executorId = parts[0];
+                this.executorsService.decrementTaskAmountForExecutor(executorId);
+            }
         }
     }
 

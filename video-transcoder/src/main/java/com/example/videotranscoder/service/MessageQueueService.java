@@ -7,6 +7,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
 @Service
 public class MessageQueueService {
     private final String REQUESTS_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-request";
@@ -56,6 +60,31 @@ public class MessageQueueService {
         }
         System.err.println("Transcoding didn't finish in " + (maxWaitIterations * 20) + " seconds");
         return result;
+    }
+
+    public Collection<String> receiveHangingTranscodingResults() {
+        ReceiveMessageResponse receiveMessageResponse = sqsClient.receiveMessage(
+                ReceiveMessageRequest.builder()
+                        .queueUrl(RESULTS_QUEUE_URL)
+                        .maxNumberOfMessages(10)
+                        .waitTimeSeconds(20)
+                        .messageAttributeNames("request_message_id")
+                        .build()
+        );
+
+        HashMap<String, String> messages = new HashMap<>();
+
+        for (Message message : receiveMessageResponse.messages()) {
+            String incomingMessageId = message.messageAttributes().get("request_message_id").stringValue();
+            messages.put(incomingMessageId, message.body());
+            try {
+                deleteReceivedMessage(message);
+            } catch (Exception e) {
+                System.err.println("Tried to delete hanging message " + message.messageId());
+            }
+        }
+
+        return messages.values();
     }
 
     private void deleteReceivedMessage(Message message) {

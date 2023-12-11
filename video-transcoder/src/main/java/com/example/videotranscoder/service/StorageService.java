@@ -27,7 +27,7 @@ public class StorageService {
     }
 
     public String uploadFileToStorage(MultipartFile file) {
-        String generatedKey = UserService.generateRandomToken(128);
+        String generatedKey = UserService.generateRandomToken(20);
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(generatedKey)

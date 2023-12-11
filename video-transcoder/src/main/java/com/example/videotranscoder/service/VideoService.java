@@ -130,4 +130,8 @@ public class VideoService {
         }
         return videoRepository.findByIdAndUserId(videoId, user.getId()).isPresent();
     }
+
+    public VideoFileModel getVideoFileByStorageKey(String originalStorageKey) {
+        return videoFileRepository.findByStorageKey(originalStorageKey).orElse(null);
+    }
 }

@@ -41,4 +41,10 @@ public class ExecutorsService {
         amountOfTasks.put(bestExecutor, amountOfTasks.get(bestExecutor) + 1);
         return bestExecutor;
     }
+
+    public void decrementTaskAmountForExecutor(String executor) {
+        if (amountOfTasks.containsKey(executor)) {
+            amountOfTasks.put(executor, amountOfTasks.get(executor) - 1);
+        }
+    }
 }
