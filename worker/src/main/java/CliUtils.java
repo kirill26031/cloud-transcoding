@@ -18,7 +18,7 @@ public class CliUtils {
         command = "ffmpeg " + command;
         Runtime rt = Runtime.getRuntime();
         try {
-            Process process = rt.exec(command);
+            Process process = rt.exec(command.split(" "));
 //            rt.redirectErrorStream(true);
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
