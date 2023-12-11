@@ -16,12 +16,11 @@ public class CliUtils {
     public static boolean executeVideoConversion(String command, String inputFile, String outputFile) {
         command = command.replace("{input}", inputFile).replace("{output}", outputFile);
         command = "ffmpeg " + command;
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        Runtime rt = Runtime.getRuntime();
         try {
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            Process process = rt.exec(command);
+//            rt.redirectErrorStream(true);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
             // Read the output of the command
             String line;
