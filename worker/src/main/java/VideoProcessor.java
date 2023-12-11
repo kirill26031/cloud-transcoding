@@ -63,7 +63,7 @@ public class VideoProcessor {
                         File outputFile = new File(outputFolder.getAbsolutePath() + "/" + newStorageKey);
                         boolean executionResult = CliUtils.executeVideoConversion(options,
                                 wrapInQuotes(downloadedVideo.getAbsolutePath()),
-                                wrapInQuotes(outputFolder.getAbsolutePath()));
+                                outputFolder.getAbsolutePath());
                         if (executionResult) {
                             storageService.uploadFileToStorage(outputFile);
 
