@@ -60,7 +60,7 @@ public class VideoProcessor {
                         System.out.println("Downloaded video to " + downloadedVideo.toPath());
 
                         String newStorageKey = StorageService.generateRandomToken(128);
-                        File outputFile = new File(outputFolder.getAbsolutePath() + "/Fix " + newStorageKey);
+                        File outputFile = new File(outputFolder.getAbsolutePath() + "/" + newStorageKey);
                         boolean executionResult = CliUtils.executeVideoConversion(options,
                                 wrapInQuotes(downloadedVideo.getAbsolutePath()),
                                 wrapInQuotes(outputFolder.getAbsolutePath()));
