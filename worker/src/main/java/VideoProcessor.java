@@ -52,12 +52,13 @@ public class VideoProcessor {
                     String storageKey = messageParts[0];
                     String options = messageParts[1];
                     String executorId = messageParts[2];
+                    String fileExtension = messageParts[3];
 
                     if (executorId.equals(thisExecutorId)) {
                         String responseMessage = "";
-                        System.out.println("Received task " + message);
+//                        System.out.println("Received task " + message);
                         File downloadedVideo = storageService.downloadFile(storageKey);
-                        System.out.println("Downloaded video to " + downloadedVideo.toPath());
+//                        System.out.println("Downloaded video to " + downloadedVideo.toPath());
 
                         String newStorageKey = StorageService.generateRandomToken(20);
                         File outputFile = new File(outputFolder.getAbsolutePath() + "/" + newStorageKey);
