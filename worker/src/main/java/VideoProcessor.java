@@ -5,6 +5,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ public class VideoProcessor {
     public static final String REQUESTS_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-request";
     public static final String RESPONSES_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-results";
     public static final String OUTPUT_FOLDER = "output/";
+
+    private static ArrayList<String> processedMessageIds = new ArrayList<>();
     public static void main(String[] args) {
         try {
             String thisExecutorId = CliUtils.getExecutorId();
@@ -40,6 +43,10 @@ public class VideoProcessor {
                 );
 
                 for (Message message : receiveMessageResponse.messages()) {
+                    addMessageIdToProcessed(message.messageId());
+                    if (processedMessageIds.contains(message.messageId())) {
+                        continue;
+                    }
                     // Process the video data here
                     String[] messageParts = message.body().split(";");
                     String storageKey = messageParts[0];
@@ -83,6 +90,15 @@ public class VideoProcessor {
         } catch (Exception e){
             e.printStackTrace();
             System.exit(1);
+        }
+    }
+
+    private static void addMessageIdToProcessed(String messageId) {
+        processedMessageIds.add(messageId);
+        if (processedMessageIds.size() > 1000) {
+            for(int i=0; i < 100; ++i) {
+                processedMessageIds.remove(0);
+            }
         }
     }
 
