@@ -29,9 +29,9 @@ public class TranscodingController {
         if (!videoService.ownsVideo(token, videoId)){
             return ResponseEntity.status(403).build();
         }
-        if (!transcodingService.SCALE_OPTIONS.contains(options)) {
-            return ResponseEntity.badRequest().build();
-        }
+//        if (!transcodingService.SCALE_OPTIONS.contains(options)) {
+//            return ResponseEntity.badRequest().build();
+//        }
         VideoFileModel transcodedFile = transcodingService.transcodeVideo(videoId, options);
         if (transcodedFile == null) {
             return ResponseEntity.badRequest().build();

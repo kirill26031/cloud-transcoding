@@ -9,9 +9,10 @@ public class  TranscodingRequestDto {
     String storageKey;
     String options;
     String executorId;
+    String fileExtension;
 
     @Override
     public String toString() {
-        return storageKey + ";" + options + ";" + executorId;
+        return storageKey + ";" + options + ";" + executorId + ";" + fileExtension;
     }
 }

@@ -33,7 +33,8 @@ public class TranscodingService {
         String messageId = messageQueueService.sendTranscodingRequest(new TranscodingRequestDto(
                 originalVideoFile.getStorageKey(),
                 processedTranscodingOptions,
-                executorsService.getAvailableExecutor()
+                executorsService.getAvailableExecutor(),
+                getFileExtension(originalVideoFile.getFilename())
         ));
         String result = messageQueueService.receiveResults(messageId);
         if (result.startsWith("SUCCESS")) {
@@ -48,8 +49,7 @@ public class TranscodingService {
     }
 
     public String processOptions(String options, String filename) {
-        String fileExtension = getFileExtension(filename);
-        return "-i {input} -vf \"scale=" + options + "\" {output}." + fileExtension;
+        return "-i {input} -y -vf scale=" + options + " {output}";
     }
 
     private String getFileExtension(String filename) {

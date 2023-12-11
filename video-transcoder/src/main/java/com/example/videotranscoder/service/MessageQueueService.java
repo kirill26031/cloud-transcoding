@@ -50,7 +50,7 @@ public class MessageQueueService {
                 if (incomingMessageId.equals(messageId)) {
                     result = message.body();
                     deleteReceivedMessage(message);
-                    break;
+                    return result;
                 }
             }
         }
