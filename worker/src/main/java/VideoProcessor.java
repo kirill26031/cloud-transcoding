@@ -43,10 +43,10 @@ public class VideoProcessor {
                 );
 
                 for (Message message : receiveMessageResponse.messages()) {
-                    addMessageIdToProcessed(message.messageId());
                     if (processedMessageIds.contains(message.messageId())) {
                         continue;
                     }
+                    addMessageIdToProcessed(message.messageId());
                     // Process the video data here
                     String[] messageParts = message.body().split(";");
                     String storageKey = messageParts[0];
