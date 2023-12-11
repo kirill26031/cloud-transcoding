@@ -21,14 +21,18 @@ public class TranscodingController {
         this.transcodingService = transcodingService;
     }
 
-    @PostMapping("/transcode/{video_id}")
+    @PostMapping("/{video_id}")
     public ResponseEntity<VideoFileDto> transcodeVideo(@PathVariable("video_id") Long videoId,
-                                                       @RequestHeader(value = "Authorization", required = true) String authorization) {
+                                                       @RequestHeader(value = "Authorization", required = true) String authorization,
+                                                       @RequestBody String options) {
         String token = VideoService.extractToken(authorization);
         if (!videoService.ownsVideo(token, videoId)){
             return ResponseEntity.status(403).build();
         }
-        VideoFileModel transcodedFile = transcodingService.transcodeVideo(videoId, "options");
+        if (!transcodingService.SCALE_OPTIONS.contains(options)) {
+            return ResponseEntity.badRequest().build();
+        }
+        VideoFileModel transcodedFile = transcodingService.transcodeVideo(videoId, options);
         if (transcodedFile == null) {
             return ResponseEntity.badRequest().build();
         }

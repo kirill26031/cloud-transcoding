@@ -51,6 +51,12 @@ public class VideoService {
         return videoFile;
     }
 
+    public VideoFileModel createTranscodedFile(String storageKey, VideoModel video, String options, String fileExtension, Long sizeInBytes) {
+        String newName = video.getName() + "-" + options + "." + fileExtension;
+        VideoFileModel transcodedVideoFile = new VideoFileModel(null, video, newName, sizeInBytes, storageKey, false);
+        return videoFileRepository.save(transcodedVideoFile);
+    }
+
     private Long calculateVideoLength(MultipartFile file) {
         return Long.valueOf(0);
     }

@@ -2,7 +2,11 @@ package com.example.videotranscoder.service;
 
 import com.example.videotranscoder.dto.TranscodingRequestDto;
 import com.example.videotranscoder.model.VideoFileModel;
+import com.example.videotranscoder.model.VideoModel;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TranscodingService {
@@ -25,11 +29,42 @@ public class TranscodingService {
             System.err.println("Couldn't find original file! videoId = " + videoId);
             return null;
         }
-        messageQueueService.sendTranscodingRequest(new TranscodingRequestDto(
+        String processedTranscodingOptions = processOptions(transcodingOptions, originalVideoFile.getFilename());
+        String messageId = messageQueueService.sendTranscodingRequest(new TranscodingRequestDto(
                 originalVideoFile.getStorageKey(),
-                transcodingOptions,
+                processedTranscodingOptions,
                 executorsService.getAvailableExecutor()
         ));
-        return null;
+        String result = messageQueueService.receiveResults(messageId);
+        if (result.startsWith("SUCCESS")) {
+            String[] parts = result.replace("SUCCESS;", "").split(";");
+            VideoFileModel videoFile = videoService.createTranscodedFile(parts[0], originalVideoFile.getVideo(),
+                    transcodingOptions, getFileExtension(originalVideoFile.getFilename()), Long.parseLong(parts[1]));
+            return videoFile;
+        }
+        else {
+            return null;
+        }
     }
+
+    public String processOptions(String options, String filename) {
+        String fileExtension = getFileExtension(filename);
+        return "-i {input} -vf \"scale=" + options + "\" {output}." + fileExtension;
+    }
+
+    private String getFileExtension(String filename) {
+        return filename.substring(filename.lastIndexOf(".") + 1);
+    }
+
+    public List<String> SCALE_OPTIONS = List.of(
+            "3840:2160",
+            "2560:1440",
+            "1920:1080",
+            "1280:720",
+            "720:480",
+            "720:576",
+            "854:480",
+            "640:360",
+            "426:240"
+    );
 }

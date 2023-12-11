@@ -12,7 +12,7 @@ public class ExecutorsService {
     private HashMap<String, Integer> amountOfTasks = new HashMap<>();
 
     public ExecutorsService() {
-        executorIds.add("TEST_ID");
+        executorIds.add("i-02bf32802bd0323ac");
         for (String executorId : executorIds) {
             amountOfTasks.put(executorId, 0);
         }
