@@ -68,8 +68,8 @@ public class VideoProcessor {
                         if (executionResult) {
                             storageService.uploadFileToStorage(outputFile);
 
-                            responseMessage = "SUCCESS;" + newStorageKey + ";" + outputFile.length();
-//                            outputFile.delete();
+                            responseMessage = "SUCCESS;" + newStorageKey + ";" + outputFile.length() + ";" + storageKey;
+                            outputFile.delete();
                         } else {
                             responseMessage = "ERROR";
                         }
