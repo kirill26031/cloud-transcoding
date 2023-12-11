@@ -61,7 +61,7 @@ public class MessageQueueService {
     private void deleteReceivedMessage(Message message) {
         sqsClient.deleteMessage(
                 DeleteMessageRequest.builder()
-                        .queueUrl(REQUESTS_QUEUE_URL)
+                        .queueUrl(RESULTS_QUEUE_URL)
                         .receiptHandle(message.receiptHandle())
                         .build()
         );

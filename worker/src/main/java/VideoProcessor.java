@@ -67,11 +67,10 @@ public class VideoProcessor {
                         if (executionResult) {
                             storageService.uploadFileToStorage(outputFile);
 
-                            responseMessage = responseMessage +
-                                    ";SUCCESS;" + newStorageKey + ";" + outputFile.length();
+                            responseMessage = "SUCCESS;" + newStorageKey + ";" + outputFile.length();
                             outputFile.delete();
                         } else {
-                            responseMessage = responseMessage + ";ERROR";
+                            responseMessage = "ERROR";
                         }
 
                         Map<String, MessageAttributeValue> attributes = new HashMap<>();
