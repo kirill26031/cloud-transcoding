@@ -19,16 +19,21 @@ public class CliUtils {
         Runtime rt = Runtime.getRuntime();
         try {
             Process process = rt.exec(command.split(" "));
-//            rt.redirectErrorStream(true);
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-            // Read the output of the command
             String line;
             StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
                 output.append(line);
             }
-            System.out.println(output);
+            System.err.println(output);
+//            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//            output = new StringBuilder();
+//            while ((line = reader.readLine()) != null) {
+//                output.append(line);
+//            }
+//            System.out.println(output);
 
             // Wait for the process to complete
             int exitCode = process.waitFor();
