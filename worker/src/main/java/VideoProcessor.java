@@ -25,6 +25,9 @@ public class VideoProcessor {
                 outputFolder.mkdir();
             }
 
+            SqsMessageReceiverThread availabilityThread = new SqsMessageReceiverThread();
+            availabilityThread.start();
+
             StorageService storageService = new StorageService();
 
             SqsClient sqsClient = SqsClient.builder()
@@ -33,7 +36,6 @@ public class VideoProcessor {
                     .build();
 
             while (true) {
-                // Receive messages from the input queue
                 ReceiveMessageResponse receiveMessageResponse = sqsClient.receiveMessage(
                         ReceiveMessageRequest.builder()
                                 .queueUrl(REQUESTS_QUEUE_URL)

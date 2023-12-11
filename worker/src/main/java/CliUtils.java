@@ -7,10 +7,21 @@ public class CliUtils {
         String path = "/sys/devices/virtual/dmi/id/board_asset_tag";
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
-            return br.readLine();
+            StringBuilder identifier = new StringBuilder(br.readLine());
+            String extractedInstanceNumber = extractInstanceNumber();
+            if (extractedInstanceNumber != null) {
+                identifier
+                        .append("-")
+                        .append(extractedInstanceNumber);
+            }
+            return identifier.toString();
         } catch (IOException e) {
             return null;
         }
+    }
+
+    private static String extractInstanceNumber() {
+        return System.getProperty("instanceNumber");
     }
 
     public static boolean executeVideoConversion(String command, String inputFile, String outputFile) {

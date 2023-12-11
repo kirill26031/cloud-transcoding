@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class ExecutorsService {
@@ -12,15 +13,12 @@ public class ExecutorsService {
     private HashMap<String, Integer> amountOfTasks = new HashMap<>();
 
     public ExecutorsService() {
-        executorIds.add("i-02bf32802bd0323ac");
-        for (String executorId : executorIds) {
-            amountOfTasks.put(executorId, 0);
-        }
     }
 
     public void addExecutor(String executorId){
         if (!executorIds.contains(executorId)){
             executorIds.add(executorId);
+            amountOfTasks.put(executorId, 0);
         }
     }
 
@@ -45,6 +43,15 @@ public class ExecutorsService {
     public void decrementTaskAmountForExecutor(String executor) {
         if (amountOfTasks.containsKey(executor)) {
             amountOfTasks.put(executor, amountOfTasks.get(executor) - 1);
+        }
+    }
+
+    public void setExecutors(List<String> executors) {
+        this.executorIds.clear();
+        this.amountOfTasks.clear();
+        this.executorIds.addAll(executors);
+        for (String executorId : executorIds) {
+            amountOfTasks.put(executorId, 0);
         }
     }
 }
