@@ -23,10 +23,9 @@ public class StorageService {
             .build();
 
     public String uploadFileToStorage(File file) {
-        String generatedKey = generateRandomToken(128);
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
-                .key(generatedKey)
+                .key(file.getName())
                 .build();
 
         RequestBody requestBody = null;
@@ -34,7 +33,7 @@ public class StorageService {
             requestBody = RequestBody.fromBytes(Files.readAllBytes(file.toPath()));
 
             PutObjectResponse putObjectResponse = s3Client.putObject(putObjectRequest, requestBody);
-            return generatedKey;
+            return file.getName();
         } catch (IOException e) {
             System.err.println(e.getMessage());
             return null;
