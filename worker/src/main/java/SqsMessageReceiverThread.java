@@ -45,8 +45,12 @@ public class SqsMessageReceiverThread extends Thread {
                     sendResponseWithIdentifier(sqsClient);
                 }
                 else {
-                    String timestamp = messages.get(0).attributes().get(QueueAttributeName.CREATED_TIMESTAMP);
-//                    Date messageSentTimestamp = Date.parse(timestamp);
+                    String timestamp = messages.get(0).attributes().get(MessageSystemAttributeName.SENT_TIMESTAMP);
+                    Date sentTime = new Date(Long.parseLong(timestamp));
+                    if ((new Date()).getTime() - sentTime.getTime() > 1000 * 60 * 3) {
+                        // Delete message after 3 minutes
+                        deleteMessages(sqsClient, messages);
+                    }
                 }
             }
         }

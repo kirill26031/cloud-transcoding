@@ -8,10 +8,8 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
 import java.security.Timestamp;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 
 @Service
 public class MessageQueueService {
@@ -132,7 +130,7 @@ public class MessageQueueService {
                             .queueUrl(AVAILABILITY_RESPONSES)
                             .maxNumberOfMessages(10)
                             .waitTimeSeconds(20)
-                            .attributeNames(QueueAttributeName.CREATED_TIMESTAMP)
+                            .attributeNames(QueueAttributeName.ALL)
                             .messageAttributeNames("executor_id")
                             .build()
             );
@@ -140,9 +138,15 @@ public class MessageQueueService {
 
             for (Message message : receiveMessageResponse.messages()) {
                 String executorId = message.messageAttributes().get("executor_id").stringValue();
-                String timestamp = message.attributes().get(QueueAttributeName.CREATED_TIMESTAMP);
-                System.out.println("Message is sent at " + timestamp);
-                executors.add(executorId);
+                if (!executors.contains(executorId)) {
+                    String timestamp = message.attributes().get(MessageSystemAttributeName.SENT_TIMESTAMP);
+                    Date sentTime = new Date(Long.parseLong(timestamp));
+                    if ((new Date()).getTime() - sentTime.getTime() <= 1000 * 60 * 60) {
+                        // Check that response is not older than 1 hour
+                        executors.add(executorId);
+                    }
+                }
+
                 try {
                     deleteReceivedMessage(message);
                 } catch (Exception e) {
