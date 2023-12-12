@@ -29,7 +29,7 @@ public class SqsMessageReceiverThread extends Thread {
                     ReceiveMessageRequest.builder()
                             .queueUrl(AVAILABILITY_REQUESTS)
                             .attributeNames(QueueAttributeName.ALL)
-                            .maxNumberOfMessages(1)
+                            .maxNumberOfMessages(10)
                             .waitTimeSeconds(20)
                             .build()
             );
@@ -39,18 +39,17 @@ public class SqsMessageReceiverThread extends Thread {
 
             }
 
-            List<Message> messages = receiveMessageResponse.messages();
-            if (!messages.isEmpty()) {
-                if (!receivedMessageIds.contains(messages.get(0).messageId())) {
-                    receivedMessageIds.add(messages.get(0).messageId());
+            for (Message message : receiveMessageResponse.messages()) {
+                if (!receivedMessageIds.contains(message.messageId())) {
+                    receivedMessageIds.add(message.messageId());
                     sendResponseWithIdentifier(sqsClient);
                 }
                 else {
-                    String timestamp = messages.get(0).attributes().get(MessageSystemAttributeName.SENT_TIMESTAMP);
+                    String timestamp = message.attributes().get(MessageSystemAttributeName.SENT_TIMESTAMP);
                     Date sentTime = new Date(Long.parseLong(timestamp));
                     if ((new Date()).getTime() - sentTime.getTime() > 1000 * 60 * 3) {
                         // Delete message after 3 minutes
-                        deleteMessages(sqsClient, messages);
+                        deleteMessage(sqsClient, message);
                     }
                 }
             }
@@ -75,17 +74,15 @@ public class SqsMessageReceiverThread extends Thread {
         );
     }
 
-    private void deleteMessages(SqsClient sqsClient, List<Message> messages) {
-        for (Message message : messages) {
-            try {
-                sqsClient.deleteMessage(DeleteMessageRequest.builder()
-                        .queueUrl(AVAILABILITY_REQUESTS)
-                        .receiptHandle(message.receiptHandle())
-                        .build());
-            }
-            catch (Exception e) {
-                System.err.println("Couldn't delete message in AVAILABILITY_REQUESTS queue");
-            }
+    private void deleteMessage(SqsClient sqsClient, Message message) {
+        try {
+            sqsClient.deleteMessage(DeleteMessageRequest.builder()
+                    .queueUrl(AVAILABILITY_REQUESTS)
+                    .receiptHandle(message.receiptHandle())
+                    .build());
+        }
+        catch (Exception e) {
+            System.err.println("Couldn't delete message in AVAILABILITY_REQUESTS queue");
         }
     }
 }
