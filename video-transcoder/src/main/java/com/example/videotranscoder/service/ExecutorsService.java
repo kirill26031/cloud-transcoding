@@ -27,7 +27,7 @@ public class ExecutorsService {
     }
 
     public String getAvailableExecutor() {
-        Integer minTasksAmount = -1;
+        Integer minTasksAmount = Integer.MAX_VALUE;
         String bestExecutor = executorIds.get(0);
         for (String executorId : executorIds) {
             Integer tasksAmount = amountOfTasks.get(executorId);
