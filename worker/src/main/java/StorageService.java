@@ -15,7 +15,7 @@ import java.util.Base64;
 
 public class StorageService {
     private final String BUCKET_NAME = "cloud-transcoding-bucket";
-    private final String TEMP_FOLDER = "~/input-files/";
+    private final String TEMP_FOLDER = "/home/ubuntu/input-files/";
 
     private final S3Client s3Client = S3Client.builder()
             .region(Region.EU_CENTRAL_1)
