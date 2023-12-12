@@ -45,6 +45,10 @@ public class StorageService {
         if (localFile.exists()) {
             return localFile;
         }
+        localFile = new File(TEMP_FOLDER + CliUtils.getExecutorId() + "/" + storageKey);
+        if (localFile.exists()) {
+            return localFile;
+        }
         return downloadFileFromRemoteStorage(storageKey);
     }
 
@@ -64,14 +68,27 @@ public class StorageService {
             if (!tempFilesFolder.exists()) {
                 tempFilesFolder.mkdir();
             }
-            File localFile = new File(TEMP_FOLDER + storageKey);
-            OutputStream os = new FileOutputStream(localFile);
-            os.write(data);
-            os.close();
+            File localFile = null;
+            try {
+                localFile = new File(TEMP_FOLDER + storageKey);
+                OutputStream os = new FileOutputStream(localFile);
+                os.write(data);
+                os.close();
+            } catch (Exception e) {
+                System.err.println("Couldn't store file to " + localFile.getName());
+                localFile = new File(TEMP_FOLDER + CliUtils.getExecutorId() + storageKey);
+                try {
+                    OutputStream os = new FileOutputStream(localFile);
+                    os.write(data);
+                    os.close();
+                }
+                catch (Exception ee) {
+                    ee.printStackTrace();
+                    System.err.println("Couldn't store file to " + localFile.getName());
+                }
+            }
+
             return localFile;
-        } catch (IOException ex) {
-            System.err.println("Couldn't store file " + storageKey + " to input folder");
-            ex.printStackTrace();
         } catch (S3Exception e) {
             System.err.println(e.awsErrorDetails().errorMessage());
             System.err.println("Couldn't store file " + storageKey + " to input folder");
