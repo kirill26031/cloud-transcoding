@@ -40,7 +40,7 @@ public class VideoService {
         if (user == null) {
             return null;
         }
-        NewVideoDto videoDto = new NewVideoDto(videoFileDto.getFilename(), calculateVideoLength(file));
+        NewVideoDto videoDto = new NewVideoDto(sanitizeFilename(videoFileDto.getFilename()), calculateVideoLength(file));
         VideoModel video = convertToEntity(videoDto);
         video.setUser(user);
         video = videoRepository.save(video);
@@ -51,8 +51,12 @@ public class VideoService {
         return videoFile;
     }
 
+    public static String sanitizeFilename(String filename) {
+        return filename.replace(" ", "-").replace(":", "-");
+    }
+
     public VideoFileModel createTranscodedFile(String storageKey, VideoModel video, String options, String fileExtension, Long sizeInBytes) {
-        String newName = video.getName() + "-" + options + "." + fileExtension;
+        String newName = sanitizeFilename(video.getName() + "-" + options + "." + fileExtension);
         VideoFileModel transcodedVideoFile = new VideoFileModel(null, video, newName, sizeInBytes, storageKey, false);
         return videoFileRepository.save(transcodedVideoFile);
     }

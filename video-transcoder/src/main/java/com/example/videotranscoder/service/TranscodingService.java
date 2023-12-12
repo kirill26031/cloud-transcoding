@@ -65,6 +65,7 @@ public class TranscodingService {
                 if (originalVideoFile != null) {
                     videoService.createTranscodedFile(newStorageKey, originalVideoFile.getVideo(),
                             "unknown", getFileExtension(originalVideoFile.getFilename()), sizeInBytes);
+                    System.out.println("Processed hanging transcoding result");
                 }
             } else {
                 String[] parts = result.replace("ERROR;", "").split(";");
