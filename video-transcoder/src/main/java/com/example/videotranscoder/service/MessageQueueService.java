@@ -58,7 +58,7 @@ public class MessageQueueService {
                 String incomingMessageId = message.messageAttributes().get("request_message_id").stringValue();
                 if (incomingMessageId.equals(messageId)) {
                     result = message.body();
-                    deleteReceivedMessage(message);
+                    deleteReceivedMessage(message, RESULTS_QUEUE_URL);
                     return result;
                 }
             }
@@ -91,7 +91,7 @@ public class MessageQueueService {
                 String incomingMessageId = message.messageAttributes().get("request_message_id").stringValue();
                 messages.put(incomingMessageId, message.body());
                 try {
-                    deleteReceivedMessage(message);
+                    deleteReceivedMessage(message, RESULTS_QUEUE_URL);
                 } catch (Exception e) {
                     System.err.println("Tried to delete hanging message " + message.messageId());
                 }
@@ -101,10 +101,10 @@ public class MessageQueueService {
         return messages.values();
     }
 
-    private void deleteReceivedMessage(Message message) {
+    private void deleteReceivedMessage(Message message, String queue) {
         sqsClient.deleteMessage(
                 DeleteMessageRequest.builder()
-                        .queueUrl(RESULTS_QUEUE_URL)
+                        .queueUrl(queue)
                         .receiptHandle(message.receiptHandle())
                         .build()
         );
@@ -148,7 +148,7 @@ public class MessageQueueService {
                 }
 
                 try {
-                    deleteReceivedMessage(message);
+                    deleteReceivedMessage(message, AVAILABILITY_RESPONSES);
                 } catch (Exception e) {
                     System.err.println("Error while deleting message in availability report responses queue");
                 }

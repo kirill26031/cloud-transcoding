@@ -28,6 +28,7 @@ public class SqsMessageReceiverThread extends Thread {
             ReceiveMessageResponse receiveMessageResponse = sqsClient.receiveMessage(
                     ReceiveMessageRequest.builder()
                             .queueUrl(AVAILABILITY_REQUESTS)
+                            .attributeNames(QueueAttributeName.ALL)
                             .maxNumberOfMessages(1)
                             .waitTimeSeconds(20)
                             .build()
