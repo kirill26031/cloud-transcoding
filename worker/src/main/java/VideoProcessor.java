@@ -12,7 +12,7 @@ import java.util.Map;
 public class VideoProcessor {
     public static final String REQUESTS_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-request";
     public static final String RESPONSES_QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/070541150151/transcoding-results";
-    public static final String OUTPUT_FOLDER = "~/output/";
+    public static String OUTPUT_FOLDER = "output/";
 
     private static ArrayList<String> processedMessageIds = new ArrayList<>();
     public static void main(String[] args) {
@@ -20,7 +20,8 @@ public class VideoProcessor {
             String thisExecutorId = CliUtils.getExecutorId();
             System.out.println("This executor id: " + thisExecutorId);
 
-            File outputFolder = new File(OUTPUT_FOLDER + thisExecutorId);
+            OUTPUT_FOLDER = OUTPUT_FOLDER + thisExecutorId;
+            File outputFolder = new File(OUTPUT_FOLDER);
             if (!outputFolder.exists()) {
                 outputFolder.mkdir();
             }
