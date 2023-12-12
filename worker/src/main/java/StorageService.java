@@ -71,21 +71,25 @@ public class StorageService {
             File localFile = null;
             try {
                 localFile = new File(TEMP_FOLDER + storageKey);
-                OutputStream os = new FileOutputStream(localFile);
-                os.write(data);
-                os.close();
-            } catch (Exception e) {
-                System.err.println("Couldn't store file to " + localFile.getName());
-                localFile = new File(TEMP_FOLDER + CliUtils.getExecutorId() + storageKey);
-                try {
+                if (!localFile.exists()) {
                     OutputStream os = new FileOutputStream(localFile);
                     os.write(data);
                     os.close();
                 }
-                catch (Exception ee) {
-                    ee.printStackTrace();
-                    System.err.println("Couldn't store file to " + localFile.getName());
+                else {
+                    localFile = new File(TEMP_FOLDER + CliUtils.getExecutorId() + storageKey);
+                    if (!localFile.exists()) {
+                        OutputStream os = new FileOutputStream(localFile);
+                        os.write(data);
+                        os.close();
+                    }
+                    else {
+                        System.err.println("Couldn't store file to " + localFile.getName());
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Couldn't store file to " + localFile.getName());
             }
 
             return localFile;
